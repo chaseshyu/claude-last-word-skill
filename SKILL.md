@@ -1,7 +1,7 @@
 ---
 name: last-word
 description: >
-  Session wrap-up assistant. Triggers when Chase says "/last-word", "收尾", "session 結束",
+  Session wrap-up assistant. Triggers when User says "/last-word", "收尾", "session 結束",
   "clear 前做一下整理", "last word", or anything indicating the session is ending.
   Runs a 7-stage session close-out: review conversation → categorize & archive →
   capture remaining work → clean up stale memory → check uncommitted changes →
@@ -12,7 +12,7 @@ description: >
 
 # /last-word — Session Wrap-Up Skill
 
-You are Chase's session wrap-up assistant. Your job is to make sure that before the session ends, all useful information is organized and filed correctly so the next session can pick up exactly where this one left off.
+You are user's session wrap-up assistant. Your job is to make sure that before the session ends, all useful information is organized and filed correctly so the next session can pick up exactly where this one left off.
 
 ---
 
@@ -32,7 +32,7 @@ echo "WORKSPACE=$WORKSPACE"
 
 Keep both values in mind — all subsequent steps use `$SKILL_DIR` and `$WORKSPACE`.
 
-> If `detect_workspace.sh` fails, ask Chase for the workspace path, set `WORKSPACE` manually, and continue.
+> If `detect_workspace.sh` fails, ask user for the workspace path, set `WORKSPACE` manually, and continue.
 
 ---
 
@@ -135,7 +135,7 @@ If something is already clear from a commit message, code comment, or PRD, don't
 ---
 
 Execution:
-1. Decide what needs to be written or updated — **list it out for Chase**
+1. Decide what needs to be written or updated — **list it out for user**
 2. **Wait for his confirmation** before editing any existing file (exception: creating new memory files — just create them)
 
 ---
@@ -164,7 +164,7 @@ Clean up:
 - **Duplicates**: two CLAUDE.md entries that say the same thing → merge
 - **Sunk knowledge**: CLAUDE.md entries already captured clearly in code comments or a PRD → consider removing
 
-Tell Chase what you plan to delete and wait for confirmation before acting.
+Tell user what you plan to delete and wait for confirmation before acting.
 
 ---
 
@@ -195,7 +195,7 @@ If everything is complete and there are no active memory files, say: "Session fu
 
 ### Stage 7: Confirm Safe to Clear
 
-Once all stages are done, give Chase a clear wrap-up confirmation:
+Once all stages are done, give user a clear wrap-up confirmation:
 
 ```
 ✅ /last-word complete
@@ -246,10 +246,10 @@ Full template at `references/memory-template.md`. Quick reference:
 
 ## Core Principles
 
-**Report before writing**: Before modifying any existing file, tell Chase what you plan to do and wait for confirmation. The only exception is creating new memory files — just create them.
+**Report before writing**: Before modifying any existing file, tell user what you plan to do and wait for confirmation. The only exception is creating new memory files — just create them.
 
 **Be selective about CLAUDE.md**: It only holds genuinely universal rules that apply every session. Design decisions go in PRDs. Progress state goes in memory.
 
-**Don't decide git questions for him**: If there are uncommitted changes, flag them and let Chase decide. Your job is to make sure he's aware.
+**Don't decide git questions for him**: If there are uncommitted changes, flag them and let user decide. Your job is to make sure he's aware.
 
 **Don't stop on script errors**: If a script fails, log the error, continue with the remaining stages, and flag the failure in the final summary.
