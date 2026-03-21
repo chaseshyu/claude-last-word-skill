@@ -1,0 +1,35 @@
+{
+  "name": "@chaseshyu/claude-last-word-skill",
+  "version": "0.1.0",
+  "description": "Session wrap-up assistant for Claude Code - helps document learnings, update memory files, and generate starter prompts for next session",
+  "main": "index.js",
+  "type": "module",
+  "exports": {
+    ".": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "install": "node scripts/install.js"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "skill",
+    "session",
+    "wrap-up",
+    "memory",
+    "research"
+  ],
+  "author": "Chase Shyu",
+  "license": "MIT",
+  "repository": "https://github.com/chaseshyu/last-word-skill",
+  "files": [
+    "index.js",
+    "SKILL.md",
+    "README.md",
+    "scripts/"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
