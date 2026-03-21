@@ -1,6 +1,6 @@
 {
   "name": "@chaseshyu/claude-last-word-skill",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Session wrap-up assistant for Claude Code - helps document learnings, update memory files, and generate starter prompts for next session",
   "main": "index.js",
   "type": "module",
