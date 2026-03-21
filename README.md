@@ -40,9 +40,15 @@ Knowledge classification rule:
 
 ## Installation
 
-Install via the [Claude Code skills system](https://github.com/anthropics/claude-code). The skill entry point is `SKILL.md`.
+You can automatically install this skill directly into your Claude Code environment by running:
 
-Once installed, invoke with `/last-word` (or say "收尾", "session 結束", "last word", etc.).
+```bash
+npx @chaseshyu/claude-last-word-skill
+```
+
+This command will copy the skill files into `~/.claude/skills/last-word`.
+
+Once installed, simply type `/last-word` (or say "wrap up", "session over", "last word", etc.) inside Claude Code to trigger it.
 
 ## Memory file format
 
