@@ -4,8 +4,8 @@
   "description": "Session wrap-up assistant for Claude Code - helps document learnings, update memory files, and generate starter prompts for next session",
   "main": "index.js",
   "type": "module",
-  "exports": {
-    ".": "./index.js"
+  "bin": {
+    "claude-last-word": "./index.js" 
   },
   "scripts": {
     "start": "node index.js",
@@ -22,13 +22,17 @@
   ],
   "author": "Chase Shyu",
   "license": "MIT",
-  "repository": "https://github.com/chaseshyu/last-word-skill",
+  "repository": "https://github.com/chaseshyu/claude-last-word-skill",
   "files": [
     "index.js",
     "SKILL.md",
     "README.md",
-    "scripts/"
+    "scripts/",
+    "references/"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=18.0.0"
   }
