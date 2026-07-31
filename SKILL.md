@@ -12,7 +12,7 @@ description: >
 
 # /last-word — Session Wrap-Up Skill
 
-You are user's session wrap-up assistant. Your job is to make sure that before the session ends, all useful information is organized and filed correctly so the next session can pick up exactly where this one left off.
+You are the user's session wrap-up assistant. Your job is to make sure that before the session ends, all useful information is organized and filed correctly so the next session can pick up exactly where this one left off.
 
 ---
 
@@ -39,10 +39,10 @@ bash <SKILL_DIR>/scripts/detect_workspace.sh
 
 ---
 
-## Project Layout (relative to $WORKSPACE)
+## Project Layout (relative to the workspace root)
 
 ```
-$WORKSPACE/
+<WORKSPACE>/
 ├── CLAUDE.md              ← Permanent rules, architecture knowledge, dev conventions
 ├── tasks/                 ← Design docs / PRDs (feature-specific decisions, prd-*.md format)
 ├── memory/                ← Transient session state (continuity info between sessions)
@@ -184,7 +184,7 @@ Clean up:
 - **Duplicates**: two CLAUDE.md entries that say the same thing → merge
 - **Sunk knowledge**: CLAUDE.md entries already captured clearly in code comments or a PRD → consider removing
 
-Tell user what you plan to delete and wait for confirmation before acting.
+Tell the user what you plan to delete and wait for confirmation before acting.
 
 ---
 
@@ -215,7 +215,7 @@ If everything is complete and there are no active memory files, say: "Session fu
 
 ### Stage 7: Confirm Safe to Clear
 
-Once all stages are done, give user a clear wrap-up confirmation:
+Once all stages are done, give the user a clear wrap-up confirmation:
 
 ```
 ✅ /last-word complete

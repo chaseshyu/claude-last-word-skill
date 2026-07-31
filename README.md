@@ -7,7 +7,7 @@ A Claude Code skill for session wrap-up. Run `/last-word` at the end of every se
 Seven stages, in order:
 
 1. **Review** — Scans the conversation history for stuck points, what worked, and gaps in CLAUDE.md
-2. **Categorize & Archive** — Files every piece of knowledge into the right place (CLAUDE.md, tasks/prd-*.md, or memory/)
+2. **Categorize & Archive** — Files every piece of knowledge into the right place (CLAUDE.md, tasks/prd-*.md, memory/, or Claude Code's auto-memory)
 3. **Capture remaining work** — Creates or updates memory files for unfinished features
 4. **Clean up stale memory** — Deletes memory files for completed features, merges duplicates
 5. **Check uncommitted changes** — Flags any dirty git repos before you clear the session
@@ -28,6 +28,16 @@ Knowledge classification rule:
 - Applies to every feature → `CLAUDE.md`
 - Specific to one feature (math, design decisions, gotchas) → `tasks/prd-<feature>.md`
 - Transient progress state → `memory/<feature>.md`
+- About the user or how Claude should work (preferences, feedback, gotchas Claude
+  itself needs recalled) → Claude Code's own auto-memory
+  (`~/.claude/projects/<project>/memory/`), never duplicated into the project files
+
+## Workspace detection
+
+The skill locates the workspace root (the directory containing `CLAUDE.md`) by
+walking up from the current working directory. All scripts also accept an explicit
+workspace path as their first argument, and keep a `/sessions/*/mnt/` scan as a
+fallback for claude.ai Cowork containers.
 
 ## Scripts
 
