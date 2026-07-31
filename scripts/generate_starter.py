@@ -15,6 +15,15 @@ from datetime import datetime
 
 
 def detect_workspace() -> Path:
+    """Find the workspace containing CLAUDE.md: walk up from cwd (local CLI),
+    then fall back to scanning /sessions/*/mnt/ (Cowork containers)."""
+    home = Path.home()
+    d = Path.cwd()
+    while d != d.parent and d != home:
+        if (d / "CLAUDE.md").exists():
+            return d
+        d = d.parent
+
     sessions_root = Path("/sessions")
     if sessions_root.exists():
         for session_dir in sessions_root.iterdir():
@@ -23,7 +32,7 @@ def detect_workspace() -> Path:
                 for ws in mnt.iterdir():
                     if ws.is_dir() and (ws / "CLAUDE.md").exists() and ws.name != ".skills":
                         return ws
-    raise RuntimeError("Could not find a workspace with CLAUDE.md")
+    raise RuntimeError("Could not find a workspace with CLAUDE.md — pass the path explicitly")
 
 
 def read_memory(path: Path) -> dict:

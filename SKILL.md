@@ -18,21 +18,24 @@ You are user's session wrap-up assistant. Your job is to make sure that before t
 
 ## Step 0: Locate the Workspace and Skill Paths
 
-Before doing anything else, run the following to establish the two key paths:
+Two paths are needed throughout this skill:
+
+1. **SKILL_DIR** — the directory containing this SKILL.md. You already know it: it is
+   the path this skill was loaded from (e.g. `~/.claude/skills/last-word`). Do NOT
+   search the filesystem for it.
+2. **WORKSPACE** — the workspace root (the directory containing the project CLAUDE.md).
+   Usually the current working directory or one of its parents. Confirm with:
 
 ```bash
-# 1. Find this skill's directory (needed to call scripts/)
-SKILL_DIR=$(find /sessions -name "SKILL.md" -path "*/last-word/SKILL.md" 2>/dev/null | head -1 | xargs dirname)
-echo "SKILL_DIR=$SKILL_DIR"
-
-# 2. Auto-detect the workspace root
-WORKSPACE=$(bash "$SKILL_DIR/scripts/detect_workspace.sh")
-echo "WORKSPACE=$WORKSPACE"
+bash <SKILL_DIR>/scripts/detect_workspace.sh
 ```
 
-Keep both values in mind — all subsequent steps use `$SKILL_DIR` and `$WORKSPACE`.
+> **Important**: shell state does not persist between Bash tool calls. Never rely on
+> `$SKILL_DIR` / `$WORKSPACE` environment variables surviving to a later call —
+> substitute the literal absolute paths into every command you run.
 
-> If `detect_workspace.sh` fails, ask user for the workspace path, set `WORKSPACE` manually, and continue.
+> If `detect_workspace.sh` fails, ask the user for the workspace path and continue,
+> passing it explicitly as the first argument to each script.
 
 ---
 
@@ -67,17 +70,16 @@ Write a 3–5 line summary of the session to include in the final report.
 
 This is the most important stage. For every piece of knowledge produced this session, decide where it belongs.
 
-First, scan what already exists:
+First, scan what already exists. The project CLAUDE.md is already loaded in your
+context — do not re-read it unless you suspect it changed on disk this session
+(use the Read tool if so, not `cat`). Then:
 
 ```bash
-# Review current CLAUDE.md
-cat "$WORKSPACE/CLAUDE.md"
-
-# Check which PRDs already exist
-ls "$WORKSPACE/tasks/" 2>/dev/null || echo "(tasks/ does not exist)"
+# Check which PRDs already exist (substitute the literal workspace path)
+ls <WORKSPACE>/tasks/ 2>/dev/null || echo "(tasks/ does not exist)"
 
 # Scan all memory files with status summary
-python3 "$SKILL_DIR/scripts/scan_memory.py" "$WORKSPACE"
+python3 <SKILL_DIR>/scripts/scan_memory.py <WORKSPACE>
 ```
 
 **The core scoping question:**
@@ -87,6 +89,21 @@ python3 "$SKILL_DIR/scripts/scan_memory.py" "$WORKSPACE"
 > - **YES** → `CLAUDE.md` (cross-cutting rules that apply everywhere)
 > - **NO — only relevant to Feature X** → `tasks/prd-<feature>.md`
 > - **Just tracking state — useless once the work is done** → `memory/<feature>.md`
+> - **About the user or how Claude should work, not about the project** → harness
+>   auto-memory (see below)
+
+**Harness auto-memory vs project memory/**: Claude Code also keeps its own persistent
+memory (`~/.claude/projects/<project>/memory/` + `MEMORY.md` index). The boundary:
+
+- **Auto-memory**: user preferences, feedback/corrections on how Claude should work,
+  branch/PR state, build gotchas, pointers to external resources — anything Claude
+  itself needs recalled across sessions. File it there following auto-memory's own
+  conventions (one fact per file + index line).
+- **Project `memory/<feature>.md`**: transient "resume here" state for a feature —
+  human-readable, part of the project workspace, deleted when the feature is done.
+
+Never file the same fact in both. If it's already in auto-memory, don't duplicate it
+into the project files (and vice versa).
 
 ---
 
@@ -135,8 +152,8 @@ If something is already clear from a commit message, code comment, or PRD, don't
 ---
 
 Execution:
-1. Decide what needs to be written or updated — **list it out for user**
-2. **Wait for his confirmation** before editing any existing file (exception: creating new memory files — just create them)
+1. Decide what needs to be written or updated — **list it out for the user**
+2. **Wait for their confirmation** before editing any existing file (exception: creating new memory files — just create them)
 
 ---
 
@@ -145,8 +162,8 @@ Execution:
 If anything was left unfinished this session, create or update the memory file:
 
 ```bash
-mkdir -p "$WORKSPACE/memory"
-# Then create or update $WORKSPACE/memory/<feature-name>.md
+mkdir -p <WORKSPACE>/memory
+# Then create or update <WORKSPACE>/memory/<feature-name>.md with the Write/Edit tools
 ```
 
 Use `references/memory-template.md` as the format guide (also shown at the bottom of this file).
@@ -155,8 +172,11 @@ Use `references/memory-template.md` as the format guide (also shown at the botto
 
 ### Stage 4: Clean Up Stale Memory
 
+Reuse the `scan_memory.py` output from Stage 2 (re-run it only if memory files
+changed since then):
+
 ```bash
-python3 "$SKILL_DIR/scripts/scan_memory.py" "$WORKSPACE"
+python3 <SKILL_DIR>/scripts/scan_memory.py <WORKSPACE>
 ```
 
 Clean up:
@@ -171,20 +191,20 @@ Tell user what you plan to delete and wait for confirmation before acting.
 ### Stage 5: Check for Uncommitted Changes
 
 ```bash
-bash "$SKILL_DIR/scripts/check_git.sh" "$WORKSPACE"
+bash <SKILL_DIR>/scripts/check_git.sh <WORKSPACE>
 ```
 
 - **exit 0** (clean) → say "All git repos are clean — safe to clear"
 - **exit 2** (dirty) → list the changed files and flag it clearly: "These changes aren't committed — is that okay before clearing?"
 
-> Don't decide for him whether to commit. Your job is to make sure he knows.
+> Don't decide for the user whether to commit. Your job is to make sure they know.
 
 ---
 
 ### Stage 6: Generate Starter Prompt
 
 ```bash
-python3 "$SKILL_DIR/scripts/generate_starter.py" "$WORKSPACE"
+python3 <SKILL_DIR>/scripts/generate_starter.py <WORKSPACE>
 ```
 
 This script reads the memory files and generates a ready-to-paste starter prompt for the next session. Add a brief note about what was accomplished this session in the "What happened last session" field.
@@ -246,10 +266,10 @@ Full template at `references/memory-template.md`. Quick reference:
 
 ## Core Principles
 
-**Report before writing**: Before modifying any existing file, tell user what you plan to do and wait for confirmation. The only exception is creating new memory files — just create them.
+**Report before writing**: Before modifying any existing file, tell the user what you plan to do and wait for confirmation. The only exception is creating new memory files — just create them.
 
 **Be selective about CLAUDE.md**: It only holds genuinely universal rules that apply every session. Design decisions go in PRDs. Progress state goes in memory.
 
-**Don't decide git questions for him**: If there are uncommitted changes, flag them and let user decide. Your job is to make sure he's aware.
+**Don't decide git questions for the user**: If there are uncommitted changes, flag them and let the user decide. Your job is to make sure they're aware.
 
 **Don't stop on script errors**: If a script fails, log the error, continue with the remaining stages, and flag the failure in the final summary.
